@@ -23,10 +23,20 @@ def list_items():
 def list_item(item: str):
     with open('./vault/'+item, 'r') as f:
         file = f.read()
-    return HTMLResponse(content=file, status_code=200)
+
+    html_response = '<form method="get" action="/mds/">'
+    html_response += f'<input type="hidden" id="folder" name="folder" value={item.replace('.md', '')}>'
+    html_response += '<textarea id="tex" name="tex" style="width:95%;height:95%">'
+    html_response += file
+    html_response += '</textarea>'
+    html_response += '</form>'
+    html_response += '<span style="background-color:gray;padding:10px;cursor:pointer;border-radius:30%" id="submit" onclick="fetch(\'/mds/?folder=\' + folder.value + \'&tex=\'+tex.value);location.reload()">submit</span>'
+
+    html_response += ''
+    return HTMLResponse(content=html_response, status_code=200)
 
 
-@app.post("/mds/")
+@app.get("/mds/")
 def write_item(folder: Union[str, None] = None, tex: Union[str, None] = None):
     if folder and tex:
         with open('./vault/' + folder + '.md', 'w') as f:
